@@ -1,0 +1,12 @@
+version: 1
+formatDir: packages/cli/src
+
+plugins:
+  - "./packages/plugin-manager/src/plugins/eslint.js"
+
+formatters:
+  - path: "./packages/plugin-manager/src/formatters/eslint-fix.js"
+    options: {}
+  - path: "./packages/plugin-manager/src/formatters/prettier.js"
+    options:
+      semi: false

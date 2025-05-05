@@ -1,0 +1,9 @@
+{
+    "name": "@gitai/plugin-manager",
+    "version": "0.1.0",
+    "main": "src/index.js",
+    "dependencies": {
+      "fast-glob": "^3.2.12",
+      "js-yaml": "^4.1.0"
+    }
+  }

@@ -1,0 +1,11 @@
+# Ignore all node_modules folders
+node_modules/
+**/node_modules/
+
+# If you commit lockfiles, keep them—but ignore the auto-generated ones
+# package-lock.json
+# yarn.lock
+
+# Ignore build artifacts
+dist/
+build/

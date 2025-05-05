@@ -12,7 +12,7 @@ on:
       - '**/*.ts'
       - '.gitai.yml'
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   analyze:

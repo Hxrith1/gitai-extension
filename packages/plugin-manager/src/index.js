@@ -1,5 +1,5 @@
-const fg = require("fast-glob");
-const fs = require("fs");
+const fg   = require("fast-glob");
+const fs   = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
@@ -75,8 +75,8 @@ function loadFormatters(entries, repoRoot) {
  */
 async function analyze(dir, cfg) {
   const repoRoot = process.cwd();
-  const plugins = loadPlugins(cfg.plugins || [], repoRoot);
-  const entries = _resolveEntries(dir);
+  const plugins  = loadPlugins(cfg.plugins || [], repoRoot);
+  const entries  = _resolveEntries(dir);
 
   const findings = [];
   for (const file of entries) {
@@ -92,16 +92,18 @@ async function analyze(dir, cfg) {
 /**
  * Run formatting plugins on files/directories.
  * Returns array of changed file paths.
+ * Honors cfg.formatDir if dir is ".".
  */
 async function format(dir, cfg) {
-  const repoRoot = process.cwd();
+  const repoRoot   = process.cwd();
   const formatters = loadFormatters(cfg.formatters || [], repoRoot);
-  const entries = _resolveEntries(dir);
-  const changed = [];
+  const targetDir  = dir === "." && cfg.formatDir ? cfg.formatDir : dir;
+  const entries    = _resolveEntries(targetDir);
+  const changed    = [];
 
-  for (const { name, format: fn, options } of formatters) {
+  // Only pull out the format function and options—drop the unused `name`
+  for (const { format: fn, options } of formatters) {
     const results = await fn({ files: entries, config: cfg, options });
-    // Expect results as array of file paths that were modified
     changed.push(...results);
   }
 

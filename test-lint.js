@@ -1,4 +1,1 @@
-// test-lint.js
-function unused() {
-  console.log("this should be flagged");
-}
+const unusedVar = 123; 

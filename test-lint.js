@@ -2,3 +2,4 @@
 function unused() {
   console.log("this should be flagged");
 }
+"// ci-check" 

@@ -50,7 +50,7 @@ function loadFormatters(entries, repoRoot) {
   return entries.map((entry) => {
     let pluginPath;
     let options = {};
-    if (typeof entry === "string") {
+    if (typeof entry === 'string') {
       pluginPath = entry;
     } else if (entry && entry.path) {
       pluginPath = entry.path;
@@ -59,11 +59,11 @@ function loadFormatters(entries, repoRoot) {
       throw new Error(`Invalid formatter entry: ${JSON.stringify(entry)}`);
     }
 
-    const fullPath = pluginPath.startsWith(".")
+    const fullPath = pluginPath.startsWith('.')
       ? path.resolve(repoRoot, pluginPath)
       : pluginPath;
     const mod = require(fullPath);
-    if (typeof mod.format !== "function") {
+    if (typeof mod.format !== 'function') {
       throw new Error(`${pluginPath} has no format() export`);
     }
     return { name: pluginPath, format: mod.format, options };
@@ -92,16 +92,17 @@ async function analyze(dir, cfg) {
 /**
  * Run formatting plugins on files/directories.
  * Returns array of changed file paths.
+ * Honors cfg.formatDir if dir is ".".
  */
 async function format(dir, cfg) {
   const repoRoot = process.cwd();
   const formatters = loadFormatters(cfg.formatters || [], repoRoot);
-  const entries = _resolveEntries(dir);
+  const targetDir = dir === '.' && cfg.formatDir ? cfg.formatDir : dir;
+  const entries = _resolveEntries(targetDir);
   const changed = [];
 
-  for (const { name, format: fn, options } of formatters) {
+  for (const { format: fn, options } of formatters) {
     const results = await fn({ files: entries, config: cfg, options });
-    // Expect results as array of file paths that were modified
     changed.push(...results);
   }
 

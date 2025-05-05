@@ -2,13 +2,16 @@ name: GitAI Analyze
 
 on:
   pull_request:
+    paths:
+      - '**/*.js'
+      - '**/*.ts'
+      - '.gitai.yml'
   push:
     branches: [ main ]
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -22,4 +25,30 @@ jobs:
         run: npm install
 
       - name: Run GitAI analysis
-        run: npx gitai analyze .
+        id: analysis
+        continue-on-error: true
+        run: |
+          echo "🔍 Running GitAI analysis…"
+          # Capture all output (including exit code failures)
+          RESULT=$(npx gitai analyze . 2>&1 || true)
+          echo "$RESULT"
+          # Expose it for later steps
+          echo "result<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESULT"      >> $GITHUB_OUTPUT
+          echo "EOF"          >> $GITHUB_OUTPUT
+
+      - name: Comment results on PR
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ### 🔍 GitAI Analysis Results
+            <details><summary>Click to expand</summary>
+
+            ```
+            ${{ steps.analysis.outputs.result }}
+            ```
+
+            </details>

@@ -3,9 +3,10 @@ name: GitAI Analyze
 permissions:
   contents: read        
   issues: write         
-
+  pull-requests: write  
 on:
-  pull_request:
+  pull_request_target:  
+    types: [opened, reopened, synchronize]
     paths:
       - '**/*.js'
       - '**/*.ts'
@@ -17,8 +18,10 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Check out PR code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -33,16 +36,14 @@ jobs:
         continue-on-error: true
         run: |
           echo "🔍 Running GitAI analysis…"
-          # Capture all output (including exit code failures)
           RESULT=$(npx gitai analyze . 2>&1 || true)
           echo "$RESULT"
-          # Expose it for later steps
           echo "result<<EOF" >> $GITHUB_OUTPUT
-          echo "$RESULT"      >> $GITHUB_OUTPUT
-          echo "EOF"          >> $GITHUB_OUTPUT
+          echo "$RESULT"       >> $GITHUB_OUTPUT
+          echo "EOF"           >> $GITHUB_OUTPUT
 
       - name: Comment results on PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: peter-evans/create-or-update-comment@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

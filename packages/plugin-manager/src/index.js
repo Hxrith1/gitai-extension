@@ -1,5 +1,5 @@
-const fg = require("fast-glob");
-const fs = require("fs");
+const fg   = require("fast-glob");
+const fs   = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
@@ -50,7 +50,7 @@ function loadFormatters(entries, repoRoot) {
   return entries.map((entry) => {
     let pluginPath;
     let options = {};
-    if (typeof entry === 'string') {
+    if (typeof entry === "string") {
       pluginPath = entry;
     } else if (entry && entry.path) {
       pluginPath = entry.path;
@@ -59,11 +59,11 @@ function loadFormatters(entries, repoRoot) {
       throw new Error(`Invalid formatter entry: ${JSON.stringify(entry)}`);
     }
 
-    const fullPath = pluginPath.startsWith('.')
+    const fullPath = pluginPath.startsWith(".")
       ? path.resolve(repoRoot, pluginPath)
       : pluginPath;
     const mod = require(fullPath);
-    if (typeof mod.format !== 'function') {
+    if (typeof mod.format !== "function") {
       throw new Error(`${pluginPath} has no format() export`);
     }
     return { name: pluginPath, format: mod.format, options };
@@ -75,8 +75,8 @@ function loadFormatters(entries, repoRoot) {
  */
 async function analyze(dir, cfg) {
   const repoRoot = process.cwd();
-  const plugins = loadPlugins(cfg.plugins || [], repoRoot);
-  const entries = _resolveEntries(dir);
+  const plugins  = loadPlugins(cfg.plugins || [], repoRoot);
+  const entries  = _resolveEntries(dir);
 
   const findings = [];
   for (const file of entries) {
@@ -95,12 +95,13 @@ async function analyze(dir, cfg) {
  * Honors cfg.formatDir if dir is ".".
  */
 async function format(dir, cfg) {
-  const repoRoot = process.cwd();
+  const repoRoot   = process.cwd();
   const formatters = loadFormatters(cfg.formatters || [], repoRoot);
-  const targetDir = dir === '.' && cfg.formatDir ? cfg.formatDir : dir;
-  const entries = _resolveEntries(targetDir);
-  const changed = [];
+  const targetDir  = dir === "." && cfg.formatDir ? cfg.formatDir : dir;
+  const entries    = _resolveEntries(targetDir);
+  const changed    = [];
 
+  // Only pull out the format function and options—drop the unused `name`
   for (const { format: fn, options } of formatters) {
     const results = await fn({ files: entries, config: cfg, options });
     changed.push(...results);
